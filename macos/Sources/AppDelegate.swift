@@ -158,11 +158,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         }
         let others = NSRunningApplication.runningApplications(withBundleIdentifier: AppModel.bundleID)
             .filter { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }
-        if MultiAuditEnvironment.root == nil, let other = others.first {
-            other.activate(options: [])
-            app.terminate(nil)
-            return
+        if MultiAuditEnvironment.root == nil {
+            for other in others {
+                let shouldYield = ApplicationInstancePolicy.shouldYield(isTerminated: other.isTerminated,
+                    isAlive: { kill(other.processIdentifier, 0) == 0 || errno == EPERM },
+                    activate: { other.activate(options: []) })
+                if shouldYield {
+                    NSLog("MultiShift startup: handing off to live process %d", other.processIdentifier)
+                    app.terminate(nil)
+                    return
+                }
+                NSLog("MultiShift startup: ignored exited process %d", other.processIdentifier)
+            }
         }
+        NSLog("MultiShift startup: build %@ pid %d", Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?", ProcessInfo.processInfo.processIdentifier)
         app.setActivationPolicy(.accessory)
         FileJobCoordinator().cleanAbandonedJobs()
         model.delegate = self

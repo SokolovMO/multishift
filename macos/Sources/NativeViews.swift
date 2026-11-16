@@ -176,16 +176,9 @@ struct SettingsView: View {
         Group {
             PaneHeading(title: model.text("General"), subtitle: copy("короткий путь от файла к результату", "a shorter path from file to result"))
             SettingsGroup {
-                HStack(spacing: 12) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(copy("включить multishift", "enable multishift")).font(.system(size: 12, weight: .medium))
-                        Text(copy("действия с файлами прямо из finder", "file actions straight from finder")).font(.system(size: 11)).foregroundStyle(secondaryInk)
-                    }
-                    Spacer(minLength: 8)
-                    Toggle("", isOn: Binding(get: { model.enabled }, set: { model.delegate?.updateEnabled($0) }))
-                        .labelsHidden().toggleStyle(.switch).controlSize(.small)
-                        .accessibilityLabel(copy("включить multishift", "enable multishift"))
-                }
+                SettingsToggleRow(title: copy("включить multishift", "enable multishift"),
+                    detail: copy("действия с файлами прямо из finder", "file actions straight from finder"),
+                    isOn: Binding(get: { model.enabled }, set: { model.delegate?.updateEnabled($0) }))
                 Divider()
                 SettingsRow(model.text("Open MultiShift at login"), icon: "power") {
                     Toggle("", isOn: $model.loginEnabled).labelsHidden().toggleStyle(.switch).controlSize(.small)
@@ -289,10 +282,9 @@ struct SettingsView: View {
         Group {
             PaneHeading(title: model.text("Notifications"), subtitle: copy("по завершении каждой фоновой операции", "after every background operation"), symbol: "bell")
             SettingsGroup {
-                Toggle(copy("показывать уведомления", "show notifications"), isOn: $model.notificationsEnabled)
-                    .toggleStyle(.switch).controlSize(.small)
-                Text(copy("системные баннеры о завершении фоновых операций", "system banners when background operations finish"))
-                    .font(.footnote).foregroundStyle(secondaryInk)
+                SettingsToggleRow(title: copy("показывать уведомления", "show notifications"),
+                    detail: copy("системные баннеры о завершении фоновых операций", "system banners when background operations finish"),
+                    isOn: $model.notificationsEnabled)
                 Divider()
                 SettingsValueRow(title: model.text("Permission"), value: model.notificationPermission)
                 Divider()
@@ -305,10 +297,9 @@ struct SettingsView: View {
                 }
             }
             SettingsGroup {
-                Toggle(copy("показывать результаты в окне", "show results in the window"), isOn: $model.showResultBanner)
-                    .toggleStyle(.switch).controlSize(.small)
-                Text(copy("карточку готовой операции можно закрыть. история и файлы сохраняются.", "dismiss a finished operation with the close button. history and files are kept."))
-                    .font(.footnote).foregroundStyle(secondaryInk)
+                SettingsToggleRow(title: copy("показывать результаты в окне", "show results in the window"),
+                    detail: copy("карточку готовой операции можно закрыть. история и файлы сохраняются.", "dismiss a finished operation with the close button. history and files are kept."),
+                    isOn: $model.showResultBanner)
             }
             Text(model.text("macOS may hide banners during Focus or screen sharing. Operation results remain available in MultiShift."))
                 .font(.system(size: 11)).foregroundStyle(secondaryInk).fixedSize(horizontal: false, vertical: true)
@@ -381,6 +372,27 @@ private struct SettingsGroup<Content: View>: View {
                     MultiMeasurement(kind: "card", radius: MultiInterfaceMetrics.Radius.lg)
                 }
             }
+    }
+}
+
+/// One native switch row for General and Notifications, including its trailing alignment.
+struct SettingsToggleRow: View {
+    let title: String
+    let detail: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.system(size: 12, weight: .medium))
+                Text(detail).font(.system(size: 11)).foregroundStyle(secondaryInk)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 8)
+            Toggle("", isOn: $isOn)
+                .labelsHidden().toggleStyle(.switch).controlSize(.small)
+                .accessibilityLabel(title)
+        }
     }
 }
 

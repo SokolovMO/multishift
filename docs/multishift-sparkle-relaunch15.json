@@ -1,0 +1,19 @@
+{
+  "survived_seconds": 5,
+  "build": 2,
+  "restarted": true,
+  "pid": 93872,
+  "scope": "disposable app with real Sparkle installer; production apps untouched",
+  "old_pid": 93854,
+  "events": [
+    "started: pid=93854 build=1",
+    "update-found: pid=93854 build=1",
+    "downloading: pid=93854 build=1",
+    "extracting: pid=93854 build=1",
+    "install-and-relaunch: pid=93854 build=1",
+    "terminate: pid=93854 build=1",
+    "started: pid=93872 build=2",
+    "restart-survived: pid=93872 build=2",
+    "terminate: pid=93872 build=2"
+  ]
+}
