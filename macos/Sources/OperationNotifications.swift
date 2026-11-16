@@ -46,7 +46,18 @@ final class OperationNotifications: NSObject, UNUserNotificationCenterDelegate, 
         }
     }
 
+    private var enabled: Bool { AppModel.defaults.object(forKey: "notificationsEnabled") as? Bool ?? true }
+
+    func clear() {
+        center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
+        operationLock.lock()
+        operations.removeAll()
+        operationLock.unlock()
+    }
+
     func post(_ operation: RecentOperation) {
+        guard enabled else { return }
         let identifier = operation.id.uuidString
         operationLock.lock()
         operations[identifier] = operation
@@ -64,11 +75,12 @@ final class OperationNotifications: NSObject, UNUserNotificationCenterDelegate, 
     }
 
     func testNotification() {
+        guard enabled else { return }
         let identifier = "test-\(UUID().uuidString)"
         NotificationDispatcher(gateway: self).send(
             id: identifier,
-            title: localized("Notification test", russian: "Проверка уведомлений"),
-            body: localized("This is a native MultiShift notification.", russian: "Это системное уведомление MultiShift.")) { [weak self] result in
+            title: localized("Notifications are ready", russian: "Уведомления готовы"),
+            body: localized("You’ll be notified when a background operation finishes.", russian: "Вы получите уведомление, когда фоновая операция завершится.")) { [weak self] result in
                 DispatchQueue.main.async {
                     self?.handler?.notificationDeliveryChanged(result, operationID: nil)
                     self?.refreshPermission()
@@ -106,6 +118,7 @@ final class OperationNotifications: NSObject, UNUserNotificationCenterDelegate, 
     }
 
     func submit(id: String, title: String, body: String, completion: @escaping (String?) -> Void) {
+        guard enabled else { completion(nil); return }
         let content = UNMutableNotificationContent()
         content.title = title.lowercased()
         content.body = body
@@ -132,7 +145,11 @@ final class OperationNotifications: NSObject, UNUserNotificationCenterDelegate, 
             content.userInfo = ["testNotification": true]
         }
         let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
-        center.add(request) { error in
+        center.add(request) { [weak self] error in
+            if self?.enabled == false {
+                self?.center.removeDeliveredNotifications(withIdentifiers: [id])
+                self?.center.removePendingNotificationRequests(withIdentifiers: [id])
+            }
             completion(error.map { EngineClient.safeDetail($0.localizedDescription) })
         }
     }
@@ -140,6 +157,7 @@ final class OperationNotifications: NSObject, UNUserNotificationCenterDelegate, 
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        guard enabled else { completionHandler([]); return }
         center.getNotificationSettings { settings in
             // Ask macOS to place it in Notification Center. A configured banner is also
             // requested; Focus, mirroring and other system policies remain authoritative.
@@ -159,7 +177,7 @@ final class OperationNotifications: NSObject, UNUserNotificationCenterDelegate, 
     }
 
     private func localized(_ english: String, russian: String) -> String {
-        (UserDefaults(suiteName: "com.multiswitcher.multishift")?.string(forKey: "language") == "ru"
+        ((AppModel.defaults.string(forKey: "language") ?? "ru") == "ru"
             ? russian : english).lowercased()
     }
 }

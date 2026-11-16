@@ -7,8 +7,9 @@ import MultiSwitcherCore
 
 /// Canonical permanent application artwork. Never reads input-source or theme state.
 @MainActor enum MultiBrandIcon {
-    static let switcher = render(externalEffects: true)
-    static let embeddedSwitcher = render(externalEffects: false)
+    static let switcher = render(appName: "multiswitcher", externalEffects: true)
+    static let shift = render(appName: "multishift", externalEffects: true)
+    static let embeddedSwitcher = render(appName: "multiswitcher", externalEffects: false)
     /// App-owned marks share one transparent canvas; Dock artwork stays separate.
     static func flatMark(appName: String, size: CGFloat) -> NSImage {
         NSImage(size: NSSize(width: size, height: size), flipped: false) { rect in
@@ -27,7 +28,7 @@ import MultiSwitcherCore
             return true
         }
     }
-    private static func render(externalEffects: Bool) -> NSImage { NSImage(size: NSSize(width: 1024, height: 1024), flipped: false) { rect in
+    private static func render(appName: String, externalEffects: Bool) -> NSImage { NSImage(size: NSSize(width: 1024, height: 1024), flipped: false) { rect in
         NSColor.clear.setFill(); rect.fill(using: .copy)
         let size = rect.width
         // Keep the white rounded tile for the in-app identity, but omit its
@@ -42,12 +43,24 @@ import MultiSwitcherCore
             NSGraphicsContext.restoreGraphicsState()
             NSColor.black.withAlphaComponent(0.08).setStroke(); path.lineWidth = max(1, size / 512); path.stroke()
         }
-        let markSize = size * 0.77
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: markSize * 0.68, weight: .semibold),
-            .foregroundColor: NSColor(white: 0.09, alpha: 1), .kern: -markSize * 0.035]
-        let text = "AЯ" as NSString; let measured = text.size(withAttributes: attributes)
-        text.draw(at: NSPoint(x: rect.midX - measured.width / 2, y: rect.midY - measured.height / 2), withAttributes: attributes)
+        if appName == "multishift" {
+            let arrow = NSBezierPath()
+            arrow.move(to: NSPoint(x: size * 0.5, y: size * (1 - 690.0 / 1024)))
+            arrow.line(to: NSPoint(x: size * 0.5, y: size * (1 - 332.0 / 1024)))
+            arrow.move(to: NSPoint(x: size * 348.0 / 1024, y: size * (1 - 482.0 / 1024)))
+            arrow.line(to: NSPoint(x: size * 0.5, y: size * (1 - 318.0 / 1024)))
+            arrow.line(to: NSPoint(x: size * 676.0 / 1024, y: size * (1 - 482.0 / 1024)))
+            arrow.lineWidth = size * 94.0 / 1024
+            arrow.lineCapStyle = .round; arrow.lineJoinStyle = .round
+            NSColor(white: 0.09, alpha: 1).setStroke(); arrow.stroke()
+        } else {
+            let markSize = size * 0.77
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: NSFont.systemFont(ofSize: markSize * 0.68, weight: .semibold),
+                .foregroundColor: NSColor(white: 0.09, alpha: 1), .kern: -markSize * 0.035]
+            let text = "AЯ" as NSString; let measured = text.size(withAttributes: attributes)
+            text.draw(at: NSPoint(x: rect.midX - measured.width / 2, y: rect.midY - measured.height / 2), withAttributes: attributes)
+        }
         return true
     } }
 }

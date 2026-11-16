@@ -165,3 +165,11 @@ python3 scripts/publish_site.py multishift release-site/index.html \
 ZIP, DMG и дельты остаются прежними; nginx не перезапускается. Сборщик будущих
 выпусков переносит эти два файла, а проверка выпуска принимает их только при
 точном совпадении с материалами из `release-site/`.
+
+## Общая подложка иконок
+
+С build 14 MultiShift использует тот же нативный `MultiBrandIcon`, что и MultiSwitcher:
+почти белая подложка (в PNG RGB 251/251/251), одинаковые геометрия, контур и тень.
+`macos/generate_icon.swift` и `scripts/build_icon.py` создают ICNS и обе PNG-иконки
+из общего исходника `MultiDesignKit.swift`; отдельного градиента MultiShift больше нет.
+Иконка остаётся одинаковой при смене темы. Фирменные знаки ↑ и AЯ различаются.

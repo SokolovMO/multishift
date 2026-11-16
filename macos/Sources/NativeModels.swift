@@ -104,6 +104,18 @@ final class AppModel: ObservableObject {
         : MultiAuditEnvironment.defaults(appID: bundleID)
     static let settingsKeys = ["language", "appearance", "trigger", "output", "jpg_quality", "pdf_dpi", "welcomed", OutputFolderPreference.bookmarkKey, OutputFolderPreference.pathKey]
 
+    @Published var notificationsEnabled = AppModel.defaults.object(forKey: "notificationsEnabled") as? Bool ?? true {
+        didSet {
+            Self.defaults.set(notificationsEnabled, forKey: "notificationsEnabled")
+            if !notificationsEnabled { Task { @MainActor [weak self] in self?.delegate?.clearNotifications() } }
+        }
+    }
+    @Published var showResultBanner = AppModel.defaults.object(forKey: "showResultBanner") as? Bool ?? true {
+        didSet { Self.defaults.set(showResultBanner, forKey: "showResultBanner") }
+    }
+    @Published var dismissedResultID = AppModel.defaults.string(forKey: "dismissedResultID") {
+        didSet { Self.defaults.set(dismissedResultID, forKey: "dismissedResultID") }
+    }
     @Published var enabled = true
     @Published var language: String
     @Published var appearance: String

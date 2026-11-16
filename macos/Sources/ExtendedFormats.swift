@@ -49,17 +49,25 @@ enum OperationSummary {
 struct OperationFeedbackStrip: View {
     @ObservedObject var model: AppModel
     let operation: RecentOperation
+    var dismiss: (() -> Void)? = nil
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            if operation.status == .running { ProgressView().controlSize(.small) }
-            else { Image(systemName: operation.failureCount > 0 ? "exclamationmark.triangle" : "checkmark.circle") }
-            VStack(alignment: .leading, spacing: 3) {
-                Text(operation.actionTitle + " · " + operation.title).font(.headline)
-                Text(operation.detail).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
-            }
-            Spacer()
+        HStack(spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                if operation.status == .running { ProgressView().controlSize(.small) }
+                else { Image(systemName: operation.failureCount > 0 ? "exclamationmark.triangle" : "checkmark.circle") }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(operation.actionTitle + " · " + operation.title).font(.headline)
+                    Text(operation.detail).font(.callout).foregroundStyle(.secondary).textSelection(.enabled)
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading)
             if let path = operation.outputPaths.first {
                 Button(model.language == "ru" ? "Открыть" : "Open") { model.openOutput(at: path) }
+            }
+            if operation.status != .running, let dismiss {
+                Button(action: dismiss) { Image(systemName: "xmark") }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(model.language == "ru" ? "Скрыть результат" : "Dismiss result")
+                    .help(model.language == "ru" ? "Результат останется в истории операций" : "The result stays in recent operations")
             }
         }.padding(12).background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
     }

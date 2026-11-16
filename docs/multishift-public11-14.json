@@ -1,0 +1,17 @@
+{
+  "downloaded_bytes": 348214,
+  "expected_bytes": 348214,
+  "selected_delta": true,
+  "download_transport": "NSURLSession after Sparkle checkForUpdateInformation selection",
+  "archive": "MultiShift-11-14-arm64.delta",
+  "installed": false,
+  "binary_delta_applied_and_validated": true,
+  "patch_sha256": "a67bc2d2a603618ef9ff9d8f1de482eb78301bc06fc5ce7c5d88ba0413f217e7",
+  "from_build": 11,
+  "to_build": 14,
+  "full_archive_bytes": 130377229,
+  "observed_requests": [],
+  "scope": "namespaced selector copy; patch applied to exact unmodified release",
+  "feed_url": "https://sokolovmo.ru/multishift/appcast.xml",
+  "selector_identity_isolated": true
+}

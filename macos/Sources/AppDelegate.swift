@@ -600,6 +600,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWind
         model.updateNotificationResult(result, operationID: operationID)
     }
 
+    func clearNotifications() { operationNotifications.clear() }
+
     func testNotification() {
         guard MultiAuditEnvironment.root == nil || ProcessInfo.processInfo.environment["MULTI_AUDIT_SCENARIO"] == "native-feedback" else { return }
         operationNotifications.testNotification()

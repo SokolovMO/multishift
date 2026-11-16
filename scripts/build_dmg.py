@@ -29,11 +29,11 @@ def create(app, output, tool=None):
         subprocess.run([str(renderer), app.stem, str(background)], check=True)
         settings = dict(format='ULMO', filesystem='HFS+', files=[str(app)],
                         symlinks={'Программы': '/Applications'}, background=str(background),
-                        window_rect=((200, 150), (700, 520)), default_view='icon-view',
+                        window_rect=((200, 150), (760, 640)), default_view='icon-view',
                         show_status_bar=False, show_toolbar=False, show_pathbar=False,
                         show_sidebar=False, show_tab_view=False, icon_size=120, text_size=16,
                         label_pos='bottom', arrange_by=None, scroll_position=(0, 0),
-                        icon_locations={app.name: (180, 205), 'Программы': (520, 205)})
+                        icon_locations={app.name: (200, 260), 'Программы': (560, 260)})
         icon_name = info.get('CFBundleIconFile', '')
         if icon_name:
             icon = app / 'Contents/Resources' / (icon_name if icon_name.endswith('.icns') else icon_name + '.icns')

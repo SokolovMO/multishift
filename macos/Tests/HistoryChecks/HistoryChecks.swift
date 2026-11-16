@@ -16,6 +16,19 @@ import AppKit
         for status in [OperationStatus.completed, .partial, .failed, .cancelled, .undone, .undoFailed] {
             precondition(entry(status).canDeleteFromHistory)
         }
+        precondition(model.notificationsEnabled && model.showResultBanner)
+        model.notificationsEnabled = false
+        model.showResultBanner = false
+        model.dismissedResultID = first.id.uuidString
+        let relaunched = AppModel()
+        precondition(!relaunched.notificationsEnabled && !relaunched.showResultBanner)
+        precondition(relaunched.dismissedResultID == first.id.uuidString)
+        precondition(relaunched.recent.count == 2 && FileManager.default.fileExists(atPath: file.path),
+                     "dismissing feedback changed history or files")
+        // With notifications off, neither posting nor testing initializes the system center.
+        let notifications = OperationNotifications()
+        notifications.post(first)
+        notifications.testNotification()
         try model.deleteHistoryEntry(id: first.id)
         precondition(model.recent.map(\.id) == [second.id])
         let contents = try String(contentsOf: file, encoding: .utf8)

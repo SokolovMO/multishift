@@ -121,8 +121,11 @@ struct SettingsView: View {
             onSelect: { if let next = SettingsSection(rawValue: $0) { section = next } }) {
             ScrollView {
                 VStack(alignment: .leading, spacing: MultiInterfaceMetrics.cardSpacing) {
-                    if let latest = model.recent.first {
-                        OperationFeedbackStrip(model: model, operation: latest)
+                    if let latest = model.recent.first,
+                       latest.status == .running || (model.showResultBanner && model.dismissedResultID != latest.id.uuidString) {
+                        OperationFeedbackStrip(model: model, operation: latest, dismiss: {
+                            model.dismissedResultID = latest.id.uuidString
+                        })
                     }
                     switch section {
                     case .general: general
@@ -286,14 +289,26 @@ struct SettingsView: View {
         Group {
             PaneHeading(title: model.text("Notifications"), subtitle: copy("по завершении каждой фоновой операции", "after every background operation"), symbol: "bell")
             SettingsGroup {
+                Toggle(copy("показывать уведомления", "show notifications"), isOn: $model.notificationsEnabled)
+                    .toggleStyle(.switch).controlSize(.small)
+                Text(copy("системные баннеры о завершении фоновых операций", "system banners when background operations finish"))
+                    .font(.footnote).foregroundStyle(secondaryInk)
+                Divider()
                 SettingsValueRow(title: model.text("Permission"), value: model.notificationPermission)
                 Divider()
                 SettingsValueRow(title: model.text("Last send"), value: model.notificationLastResult.isEmpty ? model.text("Not sent") : model.notificationLastResult)
                 Divider()
                 HStack(spacing: 8) {
                     MultiNativeAction(title: model.text("Test notification"), action: model.testNotification)
+                        .disabled(!model.notificationsEnabled)
                     MultiNativeAction(title: model.text("Open macOS settings"), action: model.openNotificationSettings)
                 }
+            }
+            SettingsGroup {
+                Toggle(copy("показывать результаты в окне", "show results in the window"), isOn: $model.showResultBanner)
+                    .toggleStyle(.switch).controlSize(.small)
+                Text(copy("карточку готовой операции можно закрыть. история и файлы сохраняются.", "dismiss a finished operation with the close button. history and files are kept."))
+                    .font(.footnote).foregroundStyle(secondaryInk)
             }
             Text(model.text("macOS may hide banners during Focus or screen sharing. Operation results remain available in MultiShift."))
                 .font(.system(size: 11)).foregroundStyle(secondaryInk).fixedSize(horizontal: false, vertical: true)

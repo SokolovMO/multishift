@@ -63,16 +63,14 @@ def feed(version, build, base, archive, signature, size, source, deltas=()):
     ET.SubElement(item, 'link').text = base
     for language, heading, detail, label in [
         ('ru', 'Обновление MultiShift',
-         'Исправлена кнопка «Открыть» в результате операции, истории и уведомлениях. '
-         'Если файл перемещён, удалён или macOS не может его открыть, приложение теперь показывает понятное сообщение. '
-         'Доступна установка через Homebrew. Настройки и история сохраняются. '
-         'Установка начнётся после подтверждения и завершения активных операций.',
+         'Добавлены выключатель системных уведомлений и закрытие карточки готовой операции. '
+         'Тестовое уведомление учитывает язык приложения. Обновлено оформление установочного DMG. '
+         'Доступна установка через Homebrew. Настройки и история сохраняются. Установка начнётся после подтверждения и завершения активных операций.',
          'Исходный код выпуска'),
         ('en', 'MultiShift update',
-         'Fixed Open in operation results, history and notifications. '
-         'When an output has moved, was deleted or cannot be opened by macOS, the app now explains the problem. '
-         'Homebrew installation is available. Settings and history are preserved. '
-         'Installation requires confirmation and waits for active operations to finish.',
+         'Control system notifications and dismiss finished operation cards. '
+         'The notification test follows the app language. The drag-to-Applications installer has a new design. '
+         'Homebrew installation is available. Settings and history are preserved. Installation requires confirmation and waits for active operations to finish.',
          'Release source code')]:
         ET.SubElement(item, 'description', {
             '{http://www.w3.org/XML/1998/namespace}lang': language
